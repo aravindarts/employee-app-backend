@@ -100,7 +100,7 @@ public class EmployeeService {
         employeeDao.deleteById(id);
         JSONObject response =new JSONObject();
         response.put("data","Delete successfully");
-        response.put("status","success");
+        response.put("statuss","success");
         return response;
     }
 
