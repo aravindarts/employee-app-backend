@@ -1,6 +1,7 @@
 package com.example.testspring.service;
 
 
+import com.example.testspring.BO.Pagination;
 import com.example.testspring.BO.SearchCriteria;
 import com.example.testspring.DO.Employee;
 import com.example.testspring.DO.EmployeeSalery;
@@ -12,13 +13,15 @@ import com.google.gson.reflect.TypeToken;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -114,15 +117,21 @@ public class EmployeeService {
         return searchCriterias;
     }
 
-    public JSONObject searchEmployees(List<SearchCriteria> searchCriterias) {
+    public JSONObject searchEmployees(List<SearchCriteria> searchCriterias, Pagination pagination) {
         CustomSpecification spec =new CustomSpecification(searchCriterias);
-        List<Employee> productsResult=(List<Employee>)(List<?>) employeeDao.findAll(Specification.where(spec));
-        JSONArray jsonArray = constructEmployeeJsonArray(productsResult);
+        Pageable pageable = PageRequest.of(pagination.getPageNumber(), pagination.getSize());
+        Page<Employee> productsResult=(Page<Employee>)(Page<?>) employeeDao.findAll(Specification.where(spec),pageable);
+        JSONArray jsonArray = constructEmployeeJsonArray(productsResult.toList());
         System.out.println(productsResult);
         JSONObject response =new JSONObject();
         response.put("data",jsonArray);
+        response.put("totalpages",productsResult.getTotalPages());
+        response.put("total",productsResult.getTotalElements());
         response.put("status","success");
         return response;
     }
 
+    public Pagination getpaginationFromJson(JSONObject jsonObject) {
+        return new Gson().fromJson(jsonObject.get("pagination").toString(),Pagination.class);
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.testspring.controller;
 
 
+import com.example.testspring.BO.Pagination;
 import com.example.testspring.BO.SearchCriteria;
 import com.example.testspring.DO.Employee;
 import com.example.testspring.service.EmployeeService;
@@ -35,7 +36,8 @@ public class EmployeeController {
         JSONParser parser = new JSONParser();
         JSONObject jsonObject = (JSONObject) parser.parse(json);
         List<SearchCriteria> searchCriterias =employeeService.searchCriteriasFromJson(jsonObject);
-        JSONObject response =employeeService.searchEmployees(searchCriterias);
+        Pagination pagination =employeeService.getpaginationFromJson(jsonObject);
+        JSONObject response =employeeService.searchEmployees(searchCriterias,pagination);
         System.out.println(searchCriterias);
       return response;
     }
